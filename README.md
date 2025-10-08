@@ -53,10 +53,4 @@ Este proyecto está configurado con Tailwind CSS usando el plugin oficial de Vit
   ¡Hola mundo con Tailwind!
 </div>
 ```
-
-## 📚 Documentación
-
-- [Vite](https://vitejs.dev/)
-- [React](https://react.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [TypeScript](https://www.typescriptlang.org/)
+add
