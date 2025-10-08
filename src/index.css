@@ -1,8 +1,91 @@
 @import "tailwindcss";
 
-/* Utilidades personalizadas */
+/* Theming with CSS variables */
+@layer base {
+  :root {
+    --bg: #0b0d12;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.18);
+    --grad-a: 99 102 241;   /* indigo-500 */
+    --grad-b: 236 72 153;   /* fuchsia-500 */
+    --ring: 99 102 241;     /* indigo-500 */
+  }
+
+  body {
+    background-color: var(--bg);
+    color: rgb(var(--fg));
+  }
+
+  /* Themes */
+  .theme-dark {
+    --bg: #0b0d12;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.22);
+    --grad-a: 99 102 241;
+    --grad-b: 236 72 153;
+    --ring: 99 102 241;
+  }
+  .theme-light {
+    --bg: #f6f7fb;
+    --fg: 15 23 42;
+    --panel: rgba(255,255,255,0.75);
+    --panel-border: rgba(2,6,23,0.08);
+    --grad-a: 14 165 233;     /* sky-500 */
+    --grad-b: 16 185 129;     /* emerald-500 */
+    --ring: 14 165 233;
+  }
+  .theme-pink {
+    --bg: #0f1017;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.22);
+    --grad-a: 236 72 153;     /* fuchsia-500 */
+    --grad-b: 244 63 94;      /* rose-500 */
+    --ring: 236 72 153;
+  }
+  .theme-green {
+    --bg: #0f1512;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.22);
+    --grad-a: 34 197 94;      /* green-500 */
+    --grad-b: 6 182 212;      /* cyan-500 */
+    --ring: 34 197 94;
+  }
+  .theme-red {
+    --bg: #120d0f;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.22);
+    --grad-a: 244 63 94;      /* rose-500 */
+    --grad-b: 251 146 60;     /* orange-400 */
+    --ring: 244 63 94;
+  }
+  .theme-sky {
+    --bg: #0b0e14;
+    --fg: 255 255 255;
+    --panel: rgba(255,255,255,0.08);
+    --panel-border: rgba(255,255,255,0.22);
+    --grad-a: 14 165 233;     /* sky-500 */
+    --grad-b: 99 102 241;     /* indigo-500 */
+    --ring: 14 165 233;
+  }
+}
+
+/* Utilities */
 @layer utilities {
   .glass-card {
-    @apply rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl;
+    @apply rounded-3xl backdrop-blur-xl shadow-xl border;
+    background-color: var(--panel);
+    border-color: var(--panel-border);
+    color: rgb(var(--fg));
+  }
+
+  .pill {
+    @apply rounded-full backdrop-blur-md border px-4 py-2;
+    background-color: var(--panel);
+    border-color: var(--panel-border);
   }
 }
