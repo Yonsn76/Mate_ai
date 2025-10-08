@@ -108,22 +108,14 @@ function InfoCard({ active, onChange }: Props) {
         <TypewriterTitle
           key={active}
           text={v.title}
-          className="text-3xl md:text-4xl font-extrabold tracking-tight mb-1"
+          className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2"
           onDone={() => setTypedDone(true)}
         />
-        <p className="text-xl md:text-2xl font-semibold text-white/90">{v.subtitle}</p>
+        <p className="text-2xl md:text-3xl font-semibold text-white/90">{v.subtitle}</p>
 
         <p className="mt-5 text-white/85 leading-relaxed">{v.text}</p>
 
-        <div className="mt-8 flex items-center justify-between">
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="inline-flex items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow hover:bg-white/90 transition-colors"
-          >
-            Learn More
-          </a>
-
+        <div className="mt-8 flex items-center justify-end">
           <div className="flex items-center gap-2">
             {Array.from({ length: v.accentDots ?? 3 }).map((_, i) => (
               <span
@@ -144,7 +136,7 @@ function InfoCard({ active, onChange }: Props) {
 function TypewriterTitle({
   text,
   className,
-  speed = 28,
+  speed = 12,
   onDone,
 }: {
   text: string
@@ -255,15 +247,15 @@ function AuthCard() {
           </div>
         </div>
 
-        {/* Contenedor de paneles apilados con transición */}
-        <div className="relative mt-6 min-h-[280px]">
+        {/* Contenedor adaptable: alterna paneles y ajusta altura automáticamente */}
+        <div className="mt-6">
           {/* Panel Login */}
           <div
             className={[
-              'absolute inset-0 transition-all duration-500',
+              'transition-all duration-500',
               mode === 'login'
-                ? 'opacity-100 translate-y-0 pointer-events-auto'
-                : 'opacity-0 -translate-y-3 pointer-events-none'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-2 hidden'
             ].join(' ')}
             aria-hidden={mode !== 'login'}
           >
@@ -315,10 +307,10 @@ function AuthCard() {
           {/* Panel Registro */}
           <div
             className={[
-              'absolute inset-0 transition-all duration-500',
+              'transition-all duration-500',
               mode === 'register'
-                ? 'opacity-100 translate-y-0 pointer-events-auto'
-                : 'opacity-0 translate-y-3 pointer-events-none'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-2 hidden'
             ].join(' ')}
             aria-hidden={mode !== 'register'}
           >
