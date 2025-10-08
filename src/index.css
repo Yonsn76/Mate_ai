@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Utilidades personalizadas */
+@layer utilities {
+  .glass-card {
+    @apply rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl;
+  }
+}
