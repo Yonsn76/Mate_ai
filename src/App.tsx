@@ -1,6 +1,7 @@
 import AuthForms from './components/AuthForms'
 
 function App() {
+
   return (
     <div className="min-h-screen relative bg-slate-950 text-white">
       {/* Subtle grid/gradient background */}
