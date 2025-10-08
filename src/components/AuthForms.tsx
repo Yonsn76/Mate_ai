@@ -79,30 +79,57 @@ function LoginForm() {
   const [password, setPassword] = useState('')
 
   return (
-    <FormShell
-      title="Bienvenido a Mate AI"
-      subtitle="Accede a tu cuenta para continuar"
-    >
-      <div className="grid grid-cols-1 gap-4">
-        <Input
-          label="Correo"
-          type="email"
-          placeholder="tucorreo@colegio.edu"
-          value={email}
-          onChange={setEmail}
-        />
-        <Input
-          label="Contraseña"
-          type="password"
-          placeholder="••••••••"
-          value={password}
-          onChange={setPassword}
-        />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
+      <div className="glass-card relative overflow-hidden p-6 md:p-8">
+        <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(80%_60%_at_20%_20%,rgba(236,72,153,0.2),transparent),radial-gradient(60%_60%_at_80%_80%,rgba(34,197,94,0.18),transparent)]" />
+        <div className="relative">
+          <h3 className="text-2xl md:text-3xl font-extrabold">GLASSMORPHISM</h3>
+          <p className="text-white/80">Login Page</p>
+          <p className="mt-4 text-sm text-white/85">
+            Mate_AI te ofrece acceso rápido a ejercicios dinámicos y explicaciones paso a paso.
+          </p>
+          <p className="mt-2 text-sm text-white/85">
+            Docentes pueden crear, asignar y monitorear avances de sus clases en tiempo real.
+          </p>
+          <button className="mt-6 inline-flex items-center rounded-full bg-white/90 px-4 py-2 text-gray-900 font-semibold hover:bg-white">
+            Learn More
+          </button>
+          <div className="mt-6 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-white/70" />
+            <span className="h-2 w-2 rounded-full bg-white/40" />
+            <span className="h-2 w-2 rounded-full bg-white/40" />
+          </div>
+        </div>
       </div>
-      <PrimaryButton onClick={() => { /* manejar login */ }}>
-        Iniciar sesión
-      </PrimaryButton>
-    </FormShell>
+
+      <div className="glass-card p-6 md:p-8">
+        <div className="mb-4 text-center">
+          <h4 className="text-xl md:text-2xl font-bold">Login</h4>
+        </div>
+        <div className="space-y-4">
+          <RoundedInput
+            label="Correo"
+            type="email"
+            placeholder="tucorreo@colegio.edu"
+            value={email}
+            onChange={setEmail}
+          />
+          <RoundedInput
+            label="Contraseña"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={setPassword}
+          />
+        </div>
+        <button
+          type="button"
+          className="mt-6 w-full rounded-full bg-white/90 px-6 py-3 font-semibold text-gray-900 shadow-sm hover:bg-white"
+        >
+          Login
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -349,6 +376,33 @@ function Input({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none backdrop-blur focus:ring-2 focus:ring-white/40"
+      />
+    </div>
+  )
+}
+
+function RoundedInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = 'text'
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  type?: string
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-full border border-white/30 bg-white/10 px-5 py-3 text-white placeholder:text-white/55 outline-none backdrop-blur focus:ring-2 focus:ring-white/40"
       />
     </div>
   )
