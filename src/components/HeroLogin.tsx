@@ -1,18 +1,19 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { NavKey } from '../App'
 
 type Props = {
   active: NavKey
+  onChange?: (key: NavKey) => void
 }
 
-export default function HeroLogin({ active }: Props) {
+export default function HeroLogin({ active, onChange }: Props) {
   return (
     <section id="home" className="relative">
       <BackgroundFX />
 
       <div className="relative z-10 container mx-auto px-4 py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
-          <InfoCard active={active} />
+          <InfoCard active={active} onChange={onChange} />
           <AuthCard />
         </div>
       </div>
@@ -20,7 +21,13 @@ export default function HeroLogin({ active }: Props) {
   )
 }
 
-function InfoCard({ active }: Props) {
+function nextKey(k: NavKey): NavKey {
+  const order: NavKey[] = ['home', 'services', 'about', 'contact']
+  const idx = order.indexOf(k)
+  return order[(idx + 1) % order.length]
+}
+
+function InfoCard({ active, onChange }: Props) {
   const variants = useMemo(() => {
     const map: Record<
       NavKey,
@@ -73,6 +80,21 @@ function InfoCard({ active }: Props) {
   }, [])
 
   const v = variants[active]
+  const [typedDone, setTypedDone] = useState(false)
+
+  // Reiniciar estado de tipeo cuando cambia la sección
+  useEffect(() => {
+    setTypedDone(false)
+  }, [active])
+
+  // Avanzar automáticamente al terminar de escribir
+  useEffect(() => {
+    if (!typedDone) return
+    const t = setTimeout(() => {
+      onChange?.(nextKey(active))
+    }, 900)
+    return () => clearTimeout(t)
+  }, [typedDone, active, onChange])
 
   return (
     <div className="relative glass-card overflow-hidden">
@@ -83,14 +105,20 @@ function InfoCard({ active }: Props) {
       </div>
 
       <div className="relative p-6 md:p-8">
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-wide mb-1">{v.title}</h2>
-        <p className="text-lg md:text-xl font-medium text-white/90">{v.subtitle}</p>
+        <TypewriterTitle
+          key={active}
+          text={v.title}
+          className="text-3xl md:text-4xl font-extrabold tracking-tight mb-1"
+          onDone={() => setTypedDone(true)}
+        />
+        <p className="text-xl md:text-2xl font-semibold text-white/90">{v.subtitle}</p>
 
-        <p className="mt-5 text-white/80 leading-relaxed">{v.text}</p>
+        <p className="mt-5 text-white/85 leading-relaxed">{v.text}</p>
 
         <div className="mt-8 flex items-center justify-between">
           <a
-            href="#about"
+            href="#"
+            onClick={(e) => e.preventDefault()}
             className="inline-flex items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow hover:bg-white/90 transition-colors"
           >
             Learn More
@@ -110,6 +138,42 @@ function InfoCard({ active }: Props) {
         </div>
       </div>
     </div>
+  )
+}
+
+function TypewriterTitle({
+  text,
+  className,
+  speed = 28,
+  onDone,
+}: {
+  text: string
+  className?: string
+  speed?: number
+  onDone?: () => void
+}) {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    setIdx(0)
+    const iv = setInterval(() => {
+      setIdx((n) => {
+        const next = Math.min(text.length, n + 1)
+        if (next === text.length) {
+          clearInterval(iv)
+          onDone?.()
+        }
+        return next
+      })
+    }, speed)
+    return () => clearInterval(iv)
+  }, [text, speed, onDone])
+
+  const visible = text.slice(0, idx)
+  return (
+    <h2 className={['text-white', className].join(' ')}>
+      <span>{visible}</span>
+      <span className="ml-1 inline-block w-[2px] h-[1.05em] align-[-0.2em] bg-white/90 animate-pulse" />
+    </h2>
   )
 }
 
