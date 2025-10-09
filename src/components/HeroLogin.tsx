@@ -566,7 +566,7 @@ function AuthCard() {
               )}
             </div>
           </div>
-        </div>
+        </AdaptiveSlider>
       </div>
     </div>
   )
