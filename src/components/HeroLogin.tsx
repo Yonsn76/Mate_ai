@@ -89,12 +89,12 @@ function InfoCard({ active, onChange }: Props) {
     setDoneAll(false)
   }, [active])
 
-  // Typing animation
+  // Typing animation (más lento)
   useEffect(() => {
     if (doneAll) return
     const current = lines[lineIdx] ?? ''
-    const speed = 14
-    const delayBetweenLines = 300
+    const speed = 40
+    const delayBetweenLines = 450
 
     if (charIdx < current.length) {
       const t = setTimeout(() => setCharIdx((c) => c + 1), speed)
@@ -127,13 +127,13 @@ function InfoCard({ active, onChange }: Props) {
   }
 
   return (
-    <div className="relative glass-card overflow-hidden">
+    <div className="relative glass-card overflow-hidden md:self-center h-[400px] md:h-[460px] flex">
       <div aria-hidden className="absolute inset-0">
         <div className={bgClass} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/40" />
       </div>
 
-      <div className="relative p-6 md:p-8">
+      <div className="relative p-6 md:p-8 w-full my-auto">
         {/* Kicker */}
         <div className="mb-2 text-xs md:text-sm font-semibold uppercase tracking-[0.22em] opacity-90">
           {kicker}
@@ -153,7 +153,7 @@ function InfoCard({ active, onChange }: Props) {
         </div>
 
         {/* dots indicator */}
-        <div className="mt-8 flex items-center justify-end gap-2">
+        <div className="mt-6 flex items-center justify-end gap-2">
           {[0, 1, 2, 3].map((i) => (
             <span key={i} className={['h-2.5 w-2.5 rounded-full', i === 0 ? 'bg-white/70' : 'bg-white/35'].join(' ')} />
           ))}
@@ -210,10 +210,7 @@ function Caret() {
 type AuthMode = 'login' | 'register'
 type Role = 'alumno' | 'docente'
 
-const gradosBase = [
-  '1ro A', '1ro B', '2do A', '2do B',
-  '3ro A', '3ro B', '4to A', '4to B', '5to A', '5to B'
-]
+const gradosBase = ['1','2','3','4','5','6']
 
 function AuthCard() {
   const [mode, setMode] = useState<AuthMode>('login')
@@ -222,11 +219,15 @@ function AuthCard() {
   // Login
   const [correoL, setCorreoL] = useState('')
   const [contrasenaL, setContrasenaL] = useState('')
+  const [showL, setShowL] = useState(false)
 
   // Registro Alumno
   const [nombreA, setNombreA] = useState('')
   const [correoA, setCorreoA] = useState('')
   const [contrasenaA, setContrasenaA] = useState('')
+  const [contrasenaA2, setContrasenaA2] = useState('')
+  const [showA, setShowA] = useState(false)
+  const [showA2, setShowA2] = useState(false)
   const [gradoA, setGradoA] = useState('')
   const [docenteCode, setDocenteCode] = useState('')
 
@@ -234,6 +235,9 @@ function AuthCard() {
   const [nombreD, setNombreD] = useState('')
   const [correoD, setCorreoD] = useState('')
   const [contrasenaD, setContrasenaD] = useState('')
+  const [contrasenaD2, setContrasenaD2] = useState('')
+  const [showD, setShowD] = useState(false)
+  const [showD2, setShowD2] = useState(false)
   const [especialidad, setEspecialidad] = useState('')
   const [gradosAsignados, setGradosAsignados] = useState<string[]>([])
 
@@ -242,6 +246,21 @@ function AuthCard() {
       prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
     )
   }
+
+  const eye = (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+  const eyeOff = (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 3l18 18" />
+      <path d="M10.58 10.58A3 3 0 0 0 12 15a3 3 0 0 0 2.12-.88" />
+      <path d="M9.88 4.54A10.91 10.91 0 0 1 12 5c7 0 11 7 11 7a19.51 19.51 0 0 1-3.34 4.46" />
+      <path d="M6.12 6.12A19.5 19.5 0 0 0 1 12s4 7 11 7a10.9 10.9 0 0 0 4.12-.78" />
+    </svg>
+  )
 
   return (
     <div className="relative glass-card overflow-hidden">
@@ -303,18 +322,22 @@ function AuthCard() {
                     required
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <input
                     aria-label="contrasena"
-                    type="password"
+                    type={showL ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={contrasenaL}
                     onChange={(e) => setContrasenaL(e.target.value)}
-                    className="w-full rounded-full border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                    className="w-full rounded-full border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
                     style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                     required
                     minLength={8}
                   />
+                  <button type="button" onClick={() => setShowL((s) => !s)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                    {showL ? eyeOff : eye}
+                  </button>
                 </div>
 
                 <button
@@ -389,17 +412,45 @@ function AuthCard() {
                     style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                     required
                   />
-                  <input
-                    aria-label="contrasena"
-                    type="password"
-                    placeholder="Contraseña (8+ caracteres)"
-                    value={contrasenaA}
-                    onChange={(e) => setContrasenaA(e.target.value)}
-                    className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
-                    style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
-                    required
-                    minLength={8}
-                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="relative">
+                      <input
+                        aria-label="contrasena"
+                        type={showA ? 'text' : 'password'}
+                        placeholder="Contraseña (8+ caracteres)"
+                        value={contrasenaA}
+                        onChange={(e) => setContrasenaA(e.target.value)}
+                        className="w-full rounded-xl border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                        style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                        required
+                        minLength={8}
+                      />
+                      <button type="button" onClick={() => setShowA((s) => !s)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                        {showA ? eyeOff : eye}
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        aria-label="repetir-contrasena"
+                        type={showA2 ? 'text' : 'password'}
+                        placeholder="Repetir contraseña"
+                        value={contrasenaA2}
+                        onChange={(e) => setContrasenaA2(e.target.value)}
+                        className="w-full rounded-xl border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                        style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                        required
+                        minLength={8}
+                      />
+                      <button type="button" onClick={() => setShowA2((s) => !s)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                        {showA2 ? eyeOff : eye}
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <select
                       aria-label="grado"
@@ -409,7 +460,7 @@ function AuthCard() {
                       style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                       required
                     >
-                      <option value="" className="text-gray-900">Selecciona tu grado</option>
+                      <option value="" className="text-gray-900">Grado (1 a 6)</option>
                       {gradosBase.map((g) => (
                         <option key={g} value={g} className="text-gray-900">{g}</option>
                       ))}
@@ -455,18 +506,42 @@ function AuthCard() {
                       style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                       required
                     />
+                    <div className="relative">
+                      <input
+                        aria-label="contrasena"
+                        type={showD ? 'text' : 'password'}
+                        placeholder="Contraseña (8+ caracteres)"
+                        value={contrasenaD}
+                        onChange={(e) => setContrasenaD(e.target.value)}
+                        className="w-full rounded-xl border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                        style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                        required
+                        minLength={8}
+                      />
+                      <button type="button" onClick={() => setShowD((s) => !s)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                        {showD ? eyeOff : eye}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="relative">
                     <input
-                      aria-label="contrasena"
-                      type="password"
-                      placeholder="Contraseña (8+ caracteres)"
-                      value={contrasenaD}
-                      onChange={(e) => setContrasenaD(e.target.value)}
-                      className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                      aria-label="repetir-contrasena"
+                      type={showD2 ? 'text' : 'password'}
+                      placeholder="Repetir contraseña"
+                      value={contrasenaD2}
+                      onChange={(e) => setContrasenaD2(e.target.value)}
+                      className="w-full rounded-xl border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
                       style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                       required
                       minLength={8}
                     />
+                    <button type="button" onClick={() => setShowD2((s) => !s)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                      {showD2 ? eyeOff : eye}
+                    </button>
                   </div>
+
                   <input
                     aria-label="especialidad"
                     type="text"
@@ -479,10 +554,10 @@ function AuthCard() {
                   />
 
                   <div className="space-y-2">
-                    <span className="text-sm opacity-90">Grados asignados</span>
+                    <span className="text-sm opacity-90">Grados asignados (1 a 6)</span>
                     <div className="rounded-xl border bg-white/10 p-3 backdrop-blur"
                          style={{ borderColor: 'var(--panel-border)' }}>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2">
                         {gradosBase.map((g) => {
                           const active = gradosAsignados.includes(g)
                           return (
