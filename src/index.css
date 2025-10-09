@@ -14,11 +14,17 @@
 
   html, body, #root {
     height: 100%;
+    width: 100%;
   }
 
   body {
     background-color: var(--bg);
     color: rgb(var(--fg));
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 
   /* Themes */

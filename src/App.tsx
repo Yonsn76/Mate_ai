@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import Header from './components/Header'
-import HeroLogin from './components/HeroLogin'
+import Header from './components/auth/Header'
+import HeroLogin from './components/auth/HeroLogin'
+import Footer from './components/Footer'
 
 export type NavKey = 'home' | 'services' | 'about' | 'contact'
 export type ThemeName = 'dark' | 'light' | 'pink' | 'green' | 'red' | 'sky'
@@ -30,17 +31,20 @@ function App() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative flex flex-col overflow-x-hidden">
       {/* global background uses theme gradients */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 h-96 w-[40rem] rounded-full blur-3xl opacity-60 md:opacity-80"
+        <div className="absolute -top-12 sm:-top-24 -left-12 sm:-left-24 h-64 w-64 sm:h-96 sm:w-[40rem] rounded-full blur-3xl opacity-40 sm:opacity-60 md:opacity-80"
              style={{ background: `radial-gradient(closest-side, rgb(var(--grad-a) / 0.35), transparent)` }} />
-        <div className="absolute -bottom-24 -right-24 h-96 w-[40rem] rounded-full blur-3xl opacity-60 md:opacity-80"
+        <div className="absolute -bottom-12 sm:-bottom-24 -right-12 sm:-right-24 h-64 w-64 sm:h-96 sm:w-[40rem] rounded-full blur-3xl opacity-40 sm:opacity-60 md:opacity-80"
              style={{ background: `radial-gradient(closest-side, rgb(var(--grad-b) / 0.35), transparent)` }} />
       </div>
 
       <Header active={active} onChange={setActive} theme={theme} setTheme={setTheme} />
-      <HeroLogin active={active} onChange={setActive} />
+      <main className="flex-1 w-full">
+        <HeroLogin active={active} onChange={setActive} />
+      </main>
+      <Footer />
     </div>
   )
 }

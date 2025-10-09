@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { apiService } from '../../services/api'
 
 type Mode = 'login' | 'alumno' | 'docente'
 
@@ -66,12 +67,54 @@ function Tabs({ current, onChange }: { current: Mode; onChange: (m: Mode) => voi
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const handleLogin = async () => {
+    setError('')
+    setSuccess('')
+    
+    if (!email || !password) {
+      setError('Por favor completa todos los campos')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await apiService.login({
+        correo: email,
+        contrasena: password
+      })
+      
+      setSuccess(`¡Bienvenido ${response.usuario.nombre}!`)
+      
+      // Redirigir o actualizar la UI después de 1.5 segundos
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <FormShell
       title="Bienvenido a Mate AI"
       subtitle="Accede a tu cuenta para continuar"
     >
+      {error && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-200 text-sm">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-xl bg-green-500/10 border border-green-500/20 px-4 py-3 text-green-200 text-sm">
+          {success}
+        </div>
+      )}
       <Input
         label="Correo"
         type="email"
@@ -86,8 +129,8 @@ function LoginForm() {
         value={password}
         onChange={setPassword}
       />
-      <PrimaryButton onClick={() => { /* manejar login */ }}>
-        Iniciar sesión
+      <PrimaryButton onClick={handleLogin} disabled={loading}>
+        {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
       </PrimaryButton>
     </FormShell>
   )
@@ -99,12 +142,62 @@ function AlumnoForm() {
   const [password, setPassword] = useState('')
   const [grado, setGrado] = useState('')
   const [docenteCode, setDocenteCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const handleRegistro = async () => {
+    setError('')
+    setSuccess('')
+    
+    if (!nombre || !email || !password) {
+      setError('Por favor completa todos los campos obligatorios')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await apiService.registro({
+        nombre,
+        correo: email,
+        contrasena: password,
+        rol: 'alumno',
+        grado: grado || undefined
+      })
+      
+      setSuccess(`¡Cuenta creada exitosamente! Bienvenido ${response.usuario.nombre}`)
+      
+      // Redirigir después de 1.5 segundos
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    } catch (err: any) {
+      setError(err.message || 'Error al crear la cuenta')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <FormShell
       title="Registro de Alumno"
       subtitle="Crea tu cuenta para empezar a aprender"
     >
+      {error && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-200 text-sm">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-xl bg-green-500/10 border border-green-500/20 px-4 py-3 text-green-200 text-sm">
+          {success}
+        </div>
+      )}
       <Input
         label="Nombre completo"
         value={nombre}
@@ -142,8 +235,8 @@ function AlumnoForm() {
         />
       </div>
 
-      <PrimaryButton onClick={() => { /* manejar registro alumno */ }}>
-        Crear cuenta de alumno
+      <PrimaryButton onClick={handleRegistro} disabled={loading}>
+        {loading ? 'Creando cuenta...' : 'Crear cuenta de alumno'}
       </PrimaryButton>
     </FormShell>
   )
@@ -155,6 +248,9 @@ function DocenteForm() {
   const [password, setPassword] = useState('')
   const [especialidad, setEspecialidad] = useState('')
   const [gradosAsignados, setGradosAsignados] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const toggleGrado = (g: string) => {
     setGradosAsignados((prev) =>
@@ -162,11 +258,59 @@ function DocenteForm() {
     )
   }
 
+  const handleRegistro = async () => {
+    setError('')
+    setSuccess('')
+    
+    if (!nombre || !email || !password) {
+      setError('Por favor completa todos los campos obligatorios')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await apiService.registro({
+        nombre,
+        correo: email,
+        contrasena: password,
+        rol: 'docente',
+        especialidad: especialidad || undefined,
+        gradosAsignados: gradosAsignados.length > 0 ? gradosAsignados : undefined
+      })
+      
+      setSuccess(`¡Cuenta creada exitosamente! Bienvenido ${response.usuario.nombre}`)
+      
+      // Redirigir después de 1.5 segundos
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    } catch (err: any) {
+      setError(err.message || 'Error al crear la cuenta')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <FormShell
       title="Registro de Docente"
       subtitle="Organiza y guía a tus alumnos con IA"
     >
+      {error && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-200 text-sm">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-xl bg-green-500/10 border border-green-500/20 px-4 py-3 text-green-200 text-sm">
+          {success}
+        </div>
+      )}
       <Input
         label="Nombre completo"
         value={nombre}
@@ -226,8 +370,8 @@ function DocenteForm() {
         </div>
       </div>
 
-      <PrimaryButton onClick={() => { /* manejar registro docente */ }}>
-        Crear cuenta de docente
+      <PrimaryButton onClick={handleRegistro} disabled={loading}>
+        {loading ? 'Creando cuenta...' : 'Crear cuenta de docente'}
       </PrimaryButton>
     </FormShell>
   )
@@ -342,16 +486,24 @@ function Select({
 
 function PrimaryButton({
   children,
-  onClick
+  onClick,
+  disabled
 }: {
   children: React.ReactNode
   onClick?: () => void
+  disabled?: boolean
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-400 hover:to-sky-400 hover:shadow-indigo-400/30 active:scale-[0.99]"
+      disabled={disabled}
+      className={[
+        "mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all",
+        disabled 
+          ? "opacity-50 cursor-not-allowed" 
+          : "hover:from-indigo-400 hover:to-sky-400 hover:shadow-indigo-400/30 active:scale-[0.99]"
+      ].join(' ')}
     >
       {children}
     </button>

@@ -1,4 +1,4 @@
-import type { NavKey, ThemeName } from '../App'
+import type { NavKey, ThemeName } from '../../App'
 
 type Props = {
   active: NavKey
@@ -18,19 +18,20 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
   const themes: ThemeName[] = ['light','dark','pink','green','red','sky']
 
   return (
-    <header className="sticky top-0 z-40 bg-transparent">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-40">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
         {/* Logo simple: cuadro con gradiente */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border backdrop-blur-md"
+             style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--panel-border)' }}>
           <div
             aria-hidden
-            className="h-7 w-7 rounded-md"
+            className="h-6 w-6 sm:h-7 sm:w-7 rounded-md flex-shrink-0"
             style={{ background: `linear-gradient(135deg, rgb(var(--grad-a)), rgb(var(--grad-b)))` }}
           />
-          <div className="text-lg font-extrabold tracking-wide">Mate_AI</div>
+          <div className="text-base sm:text-lg font-extrabold tracking-wide">Mate_AI</div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Navbar pills */}
           <nav className="hidden sm:block">
             <ul className="flex items-center gap-1 p-1 rounded-full border backdrop-blur-md"
@@ -58,7 +59,7 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
           </nav>
 
           {/* Theme selector */}
-          <div className="flex items-center gap-2 rounded-full border px-2 py-1"
+          <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border px-1.5 sm:px-2 py-1 backdrop-blur-md"
                style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--panel-border)' }}>
             {themes.map((t) => (
               <button
@@ -66,7 +67,7 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
                 aria-label={`theme-${t}`}
                 onClick={() => setTheme(t)}
                 className={[
-                  'h-7 w-7 rounded-full border transition-transform active:scale-95',
+                  'h-6 w-6 sm:h-7 sm:w-7 rounded-full border transition-transform active:scale-95 flex-shrink-0',
                   theme === t ? 'ring-2' : ''
                 ].join(' ')}
                 style={{
@@ -90,7 +91,7 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
 
       {/* Mobile navbar */}
       <div className="sm:hidden px-4 pb-3">
-        <ul className="flex items-center justify-between gap-2 p-1 rounded-full border"
+        <ul className="flex items-center justify-between gap-2 p-1 rounded-full border backdrop-blur-md"
             style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--panel-border)' }}>
           {navItems.map((item) => {
             const isActive = item.key === active
