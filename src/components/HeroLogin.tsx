@@ -564,7 +564,6 @@ function AuthCard() {
                   </button>
                 </form>
               )}
-            </div>
           </div>
         </AdaptiveSlider>
       </div>

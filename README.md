@@ -53,4 +53,3 @@ Este proyecto está configurado con Tailwind CSS usando el plugin oficial de Vit
   ¡Hola mundo con Tailwind!
 </div>
 ```
-add
