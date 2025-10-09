@@ -173,7 +173,7 @@ function TypedBody({ lines, showCaret }: { lines: string[]; showCaret: boolean }
         <ul key={`ul-${out.length}`} className="list-disc pl-5 space-y-1">
           {bullets.map((b, idx) => (
             <li key={idx} className="opacity-95">
-              {b.replace(/^•\\s?/, '')}
+              {b.replace(/^•\s?/, '')}
               {showCaret && idx === bullets.length - 1 && <Caret />}
             </li>
           ))}
@@ -229,6 +229,7 @@ function AuthCard() {
   const [showA, setShowA] = useState(false)
   const [showA2, setShowA2] = useState(false)
   const [gradoA, setGradoA] = useState('')
+  const [seccionA, setSeccionA] = useState('')
   const [docenteCode, setDocenteCode] = useState('')
 
   // Registro Docente
@@ -239,13 +240,6 @@ function AuthCard() {
   const [showD, setShowD] = useState(false)
   const [showD2, setShowD2] = useState(false)
   const [especialidad, setEspecialidad] = useState('')
-  const [gradosAsignados, setGradosAsignados] = useState<string[]>([])
-
-  const toggleGrado = (g: string) => {
-    setGradosAsignados((prev) =>
-      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
-    )
-  }
 
   const eye = (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -466,15 +460,26 @@ function AuthCard() {
                       ))}
                     </select>
                     <input
-                      aria-label="codigo docente"
+                      aria-label="seccion"
                       type="text"
-                      placeholder="Código Docente / Colegio (opcional)"
-                      value={docenteCode}
-                      onChange={(e) => setDocenteCode(e.target.value)}
+                      placeholder="Sección (ej: A)"
+                      value={seccionA}
+                      onChange={(e) => setSeccionA(e.target.value.toUpperCase().slice(0, 1))}
                       className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
                       style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                      required
                     />
                   </div>
+
+                  <input
+                    aria-label="codigo docente"
+                    type="text"
+                    placeholder="Código Docente / Colegio (opcional)"
+                    value={docenteCode}
+                    onChange={(e) => setDocenteCode(e.target.value)}
+                    className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                    style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                  />
 
                   <button
                     type="submit"
@@ -553,36 +558,7 @@ function AuthCard() {
                     required
                   />
 
-                  <div className="space-y-2">
-                    <span className="text-sm opacity-90">Grados asignados (1 a 6)</span>
-                    <div className="rounded-xl border bg-white/10 p-3 backdrop-blur"
-                         style={{ borderColor: 'var(--panel-border)' }}>
-                      <div className="grid grid-cols-3 gap-2">
-                        {gradosBase.map((g) => {
-                          const active = gradosAsignados.includes(g)
-                          return (
-                            <button
-                              type="button"
-                              key={g}
-                              onClick={() => toggleGrado(g)}
-                              className={[
-                                'rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                                active ? 'bg-white/80 text-gray-900 shadow'
-                                       : 'bg-white/10 hover:bg-white/20'
-                              ].join(' ')}
-                            >
-                              {g}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      {gradosAsignados.length > 0 && (
-                        <p className="mt-3 text-xs opacity-90">
-                          Seleccionados: {gradosAsignados.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <DocenteAsignaciones />
 
                   <button
                     type="submit"
@@ -595,6 +571,95 @@ function AuthCard() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function DocenteAsignaciones() {
+  const [gradoD, setGradoD] = useState('')
+  const [seccionD, setSeccionD] = useState('')
+  type Asignacion = { grado: string; seccion: string }
+  const [asignaciones, setAsignaciones] = useState<Asignacion[]>([])
+
+  const addAsignacion = () => {
+    const sec = seccionD.toUpperCase().slice(0, 1)
+    if (!gradoD || !sec) return
+    const exists = asignaciones.some((a) => a.grado === gradoD && a.seccion === sec)
+    if (exists) return
+    setAsignaciones((prev) => [...prev, { grado: gradoD, seccion: sec }])
+    setSeccionD('')
+  }
+
+  const removeAsignacion = (idx: number) => {
+    setAsignaciones((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <div className="space-y-3">
+      <span className="text-sm opacity-90">Grados y secciones asignados</span>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <select
+          aria-label="grado-docente"
+          value={gradoD}
+          onChange={(e) => setGradoD(e.target.value)}
+          className="w-full rounded-xl border bg-white/10 px-4 py-3 text-white outline-none backdrop-blur focus:ring-2"
+          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+        >
+          <option value="" className="text-gray-900">Grado (1 a 6)</option>
+          {gradosBase.map((g) => (
+            <option key={g} value={g} className="text-gray-900">{g}</option>
+          ))}
+        </select>
+
+        <input
+          aria-label="seccion-docente"
+          type="text"
+          placeholder="Sección (ej: A)"
+          value={seccionD}
+          onChange={(e) => setSeccionD(e.target.value.toUpperCase().slice(0, 1))}
+          className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+        />
+
+        <button
+          type="button"
+          onClick={addAsignacion}
+          disabled={!gradoD || !seccionD}
+          className={[
+            'rounded-xl px-4 py-3 font-semibold transition-all',
+            !gradoD || !seccionD
+              ? 'bg-white/20 text-white/60 cursor-not-allowed'
+              : 'bg-white text-gray-900 hover:bg-white/90'
+          ].join(' ')}
+        >
+          Agregar
+        </button>
+      </div>
+
+      <div className="rounded-xl border bg-white/10 p-3 backdrop-blur"
+           style={{ borderColor: 'var(--panel-border)' }}>
+        {asignaciones.length === 0 ? (
+          <p className="text-sm opacity-80">Ninguno agregado aún.</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {asignaciones.map((a, idx) => (
+              <div key={`${a.grado}-${a.seccion}-${idx}`} className="flex items-center justify-between rounded-lg px-3 py-2 bg-white/80 text-gray-900">
+                <span className="text-sm font-medium">Grado {a.grado} - {a.seccion}</span>
+                <button
+                  type="button"
+                  aria-label="remove"
+                  onClick={() => removeAsignacion(idx)}
+                  className="ml-2 h-5 w-5 rounded-full bg-gray-900/10 hover:bg-gray-900/20 flex items-center justify-center"
+                  title="Quitar"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
