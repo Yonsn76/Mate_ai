@@ -11,7 +11,8 @@ export default function HeroLogin({ active, onChange }: Props) {
     <section id="home" className="relative">
       <BackgroundFX />
 
-      <div className="relative z-10 container mx-auto px-4 py-8 md:py-10 min-h-[calc(div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
+      <div className="relative z-10 container mx-auto px-4 py-8 md:py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
           <InfoCard active={active} onChange={onChange} />
           <AuthCard />
         </div>
@@ -563,9 +564,8 @@ function AuthCard() {
                   </button>
                 </form>
               )}
-            </div>
           </div>
-        </div>
+        </AdaptiveSlider>
       </div>
     </div>
   )
@@ -688,6 +688,17 @@ function AdaptiveSlider({ mode, children }: { mode: 'login' | 'register'; childr
   useEffect(() => {
     measure()
   }, [])
+
+  // Observa cambios de tamaño sin optional chaining en constructor
+  useEffect(() => {
+    const target = innerRef.current
+    if (!target) return
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => measure())
+      ro.observe(target)
+      return () => ro.disconnect()
+    }
+  }, [mode])
 
   return (
     <div className="mt-6 overflow-hidden relative" ref={containerRef} style={{ height: height ? `${height}px` : undefined }}>
