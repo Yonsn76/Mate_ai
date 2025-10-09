@@ -18,7 +18,7 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
   const themes: ThemeName[] = ['light','dark','pink','green','red','sky']
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[color:var(--panel-border)]/50 bg-[color:var(--bg)]/60 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-transparent">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo simple: cuadro con gradiente */}
         <div className="flex items-center gap-3">

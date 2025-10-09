@@ -12,9 +12,15 @@
     --ring: 99 102 241;     /* indigo-500 */
   }
 
+  html, body, #root {
+    height: 100%;
+  }
+
   body {
     background-color: var(--bg);
     color: rgb(var(--fg));
+    overflow: hidden;             /* sin scroll general */
+    overscroll-behavior: none;    /* sin rebote */
   }
 
   /* Themes */

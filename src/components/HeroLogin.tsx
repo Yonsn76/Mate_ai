@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NavKey } from '../App'
 
 type Props = {
@@ -11,8 +11,7 @@ export default function HeroLogin({ active, onChange }: Props) {
     <section id="home" className="relative">
       <BackgroundFX />
 
-      <div className="relative z-10 container mx-auto px-4 py-10 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
+      <div className="relative z-10 container mx-auto px-4 py-8 md:py-10 min-h-[calc(div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
           <InfoCard active={active} onChange={onChange} />
           <AuthCard />
         </div>
@@ -295,67 +294,63 @@ function AuthCard() {
           </div>
         </div>
 
-        {/* Slider horizontal */}
-        <div className="mt-6 overflow-hidden">
-          <div
-            className="flex w-[200%] transition-transform duration-500 ease-out"
-            style={{ transform: mode === 'login' ? 'translateX(0%)' : 'translateX(-50%)' }}
-          >
-            {/* Slide Login */}
-            <div className="w-1/2 pr-2">
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <input
-                    aria-label="correo"
-                    type="email"
-                    placeholder="correo@ejemplo.com"
-                    value={correoL}
-                    onChange={(e) => setCorreoL(e.target.value)}
-                    className="w-full rounded-full border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
-                    style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
-                    required
-                  />
-                </div>
-                <div className="relative">
-                  <input
-                    aria-label="contrasena"
-                    type={showL ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={contrasenaL}
-                    onChange={(e) => setContrasenaL(e.target.value)}
-                    className="w-full rounded-full border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
-                    style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
-                    required
-                    minLength={8}
-                  />
-                  <button type="button" onClick={() => setShowL((s) => !s)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
-                    {showL ? eyeOff : eye}
-                  </button>
-                </div>
-
-                <button
-                  type="submit"
-                  className="mt-2 w-full rounded-full bg-white px-6 py-3 font-semibold text-gray-900 shadow hover:bg-white/90 active:scale-[0.99] transition-all"
-                >
-                  Login
+        {/* Slider horizontal con altura adaptativa */}
+        <AdaptiveSlider mode={mode}>
+          {/* Slide Login */}
+          <div data-slide="login" className="w-1/2 pr-2">
+            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <div>
+                <input
+                  aria-label="correo"
+                  type="email"
+                  placeholder="correo@ejemplo.com"
+                  value={correoL}
+                  onChange={(e) => setCorreoL(e.target.value)}
+                  className="w-full rounded-full border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                  style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                  required
+                />
+              </div>
+              <div className="relative">
+                <input
+                  aria-label="contrasena"
+                  type={showL ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={contrasenaL}
+                  onChange={(e) => setContrasenaL(e.target.value)}
+                  className="w-full rounded-full border bg-white/10 px-5 py-3 pr-10 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                  style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                  required
+                  minLength={8}
+                />
+                <button type="button" onClick={() => setShowL((s) => !s)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
+                  {showL ? eyeOff : eye}
                 </button>
-              </form>
+              </div>
 
-              <p className="mt-4 text-center text-sm/relaxed opacity-90">
-                ¿No tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => setMode('register')}
-                  className="font-semibold underline-offset-4 hover:underline"
-                >
-                  Regístrate
-                </button>
-              </p>
-            </div>
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-full bg-white px-6 py-3 font-semibold text-gray-900 shadow hover:bg-white/90 active:scale-[0.99] transition-all"
+              >
+                Login
+              </button>
+            </form>
 
-            {/* Slide Registro */}
-            <div className="w-1/2 pl-2">
+            <p className="mt-4 text-center text-sm/relaxed opacity-90">
+              ¿No tienes cuenta?{' '}
+              <button
+                type="button"
+                onClick={() => setMode('register')}
+                className="font-semibold underline-offset-4 hover:underline"
+              >
+                Regístrate
+              </button>
+            </p>
+          </div>
+
+          {/* Slide Registro */}
+          <div data-slide="register" className="w-1/2 pl-2">
               {/* Selector de rol */}
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-sm opacity-90">Tipo de cuenta</span>
@@ -660,6 +655,48 @@ function DocenteAsignaciones() {
             ))}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+/* Slider con altura adaptativa a slide actual */
+function AdaptiveSlider({ mode, children }: { mode: 'login' | 'register'; children: React.ReactNode }) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const innerRef = useRef<HTMLDivElement | null>(null)
+  const [height, setHeight] = useState<number | undefined>(undefined)
+
+  const measure = () => {
+    const inner = innerRef.current
+    if (!inner) return
+    const selector = mode === 'login' ? '[data-slide=\"login\"]' : '[data-slide=\"register\"]'
+    const slide = inner.querySelector(selector) as HTMLElement | null
+    if (!slide) return
+    setHeight(slide.offsetHeight)
+  }
+
+  useEffect(() => {
+    const r = requestAnimationFrame(measure)
+    const onResize = () => measure()
+    window.addEventListener('resize', onResize)
+    return () => {
+      cancelAnimationFrame(r)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [mode])
+
+  useEffect(() => {
+    measure()
+  }, [])
+
+  return (
+    <div className="mt-6 overflow-hidden relative" ref={containerRef} style={{ height: height ? `${height}px` : undefined }}>
+      <div
+        ref={innerRef}
+        className="flex w-[200%] transition-transform duration-500 ease-out"
+        style={{ transform: mode === 'login' ? 'translateX(0%)' : 'translateX(-50%)' }}
+      >
+        {children}
       </div>
     </div>
   )
