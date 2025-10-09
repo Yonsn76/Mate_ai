@@ -30,7 +30,7 @@ function App() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative">
       {/* global background uses theme gradients */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-24 -left-24 h-96 w-[40rem] rounded-full blur-3xl opacity-60 md:opacity-80"

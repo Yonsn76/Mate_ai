@@ -19,8 +19,6 @@
   body {
     background-color: var(--bg);
     color: rgb(var(--fg));
-    overflow: hidden;             /* sin scroll general */
-    overscroll-behavior: none;    /* sin rebote */
   }
 
   /* Themes */
