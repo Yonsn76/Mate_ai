@@ -690,6 +690,17 @@ function AdaptiveSlider({ mode, children }: { mode: 'login' | 'register'; childr
     measure()
   }, [])
 
+  // Observa cambios de tamaño sin optional chaining en constructor
+  useEffect(() => {
+    const target = innerRef.current
+    if (!target) return
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => measure())
+      ro.observe(target)
+      return () => ro.disconnect()
+    }
+  }, [mode])
+
   return (
     <div className="mt-6 overflow-hidden relative" ref={containerRef} style={{ height: height ? `${height}px` : undefined }}>
       <div
