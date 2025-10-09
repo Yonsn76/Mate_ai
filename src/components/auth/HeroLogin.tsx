@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { NavKey } from '../../App'
+import { useAuth } from '../../contexts/AuthContext'
+import { apiService } from '../../services/api'
 
 type Props = {
   active: NavKey
@@ -224,11 +226,14 @@ const gradosBase = ['1','2','3','4','5','6']
 function AuthCard() {
   const [mode, setMode] = useState<AuthMode>('login')
   const [role, setRole] = useState<Role>('alumno')
+  const { login } = useAuth()
 
   // Login
   const [correoL, setCorreoL] = useState('')
   const [contrasenaL, setContrasenaL] = useState('')
   const [showL, setShowL] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   // Registro Alumno
   const [nombreA, setNombreA] = useState('')
@@ -264,6 +269,134 @@ function AuthCard() {
       <path d="M6.12 6.12A19.5 19.5 0 0 0 1 12s4 7 11 7a10.9 10.9 0 0 0 4.12-.78" />
     </svg>
   )
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Prevenir múltiples clics
+    if (loading) return
+    
+    setError('')
+    setLoading(true)
+
+    try {
+      const response = await apiService.login({
+        correo: correoL,
+        contrasena: contrasenaL
+      })
+      
+      // Guardar usuario en el contexto
+      login({
+        ...response.usuario,
+        rol: response.usuario.rol as 'alumno' | 'docente'
+      })
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegistroAlumno = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Prevenir múltiples clics
+    if (loading) return
+    
+    setError('')
+
+    // Validaciones
+    if (contrasenaA !== contrasenaA2) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
+    if (contrasenaA.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+
+    if (!gradoA.trim()) {
+      setError('El grado es requerido')
+      return
+    }
+
+    if (!seccionA.trim()) {
+      setError('La sección es requerida')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await apiService.registro({
+        nombre: nombreA,
+        correo: correoA,
+        contrasena: contrasenaA,
+        rol: 'alumno',
+        grado: gradoA,
+        seccion: seccionA
+      })
+      
+      // Guardar usuario en el contexto
+      login({
+        ...response.usuario,
+        rol: response.usuario.rol as 'alumno' | 'docente'
+      })
+    } catch (err: any) {
+      setError(err.message || 'Error al registrar usuario')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegistroDocente = async (e: React.FormEvent, gradosAsignados: string[]) => {
+    e.preventDefault()
+    
+    // Prevenir múltiples clics
+    if (loading) return
+    
+    setError('')
+
+    // Validaciones
+    if (contrasenaD !== contrasenaD2) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
+    if (contrasenaD.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+
+    if (!especialidad.trim()) {
+      setError('La especialidad es requerida')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await apiService.registro({
+        nombre: nombreD,
+        correo: correoD,
+        contrasena: contrasenaD,
+        rol: 'docente',
+        especialidad: especialidad,
+        gradosAsignados: gradosAsignados
+      })
+      
+      // Guardar usuario en el contexto
+      login({
+        ...response.usuario,
+        rol: response.usuario.rol as 'alumno' | 'docente'
+      })
+    } catch (err: any) {
+      setError(err.message || 'Error al registrar docente')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="relative glass-card overflow-hidden">
@@ -310,7 +443,12 @@ function AuthCard() {
         <AdaptiveSlider mode={mode}>
           {/* Slide Login */}
           <div data-slide="login">
-            <form className="space-y-3 sm:space-y-4" onSubmit={(e) => e.preventDefault()}>
+            {error && (
+              <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-200 text-sm">
+                {error}
+              </div>
+            )}
+            <form className="space-y-3 sm:space-y-4" onSubmit={handleLogin}>
               <div>
                 <input
                   aria-label="correo"
@@ -343,9 +481,10 @@ function AuthCard() {
 
               <button
                 type="submit"
-                className="w-full rounded-full bg-white px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-gray-900 shadow hover:bg-white/90 active:scale-[0.99] transition-all"
+                disabled={loading}
+                className="w-full rounded-full bg-white px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-gray-900 shadow hover:bg-white/90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Login
+                {loading ? 'Iniciando sesión...' : 'Login'}
               </button>
             </form>
 
@@ -363,6 +502,12 @@ function AuthCard() {
 
           {/* Slide Registro */}
           <div data-slide="register">
+            {error && (
+              <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-200 text-sm">
+                {error}
+              </div>
+            )}
+            
             {/* Selector de rol */}
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm opacity-90">Tipo de cuenta</span>
@@ -370,7 +515,10 @@ function AuthCard() {
                    style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--panel-border)' }}>
                 <button
                   type="button"
-                  onClick={() => setRole('alumno')}
+                  onClick={() => {
+                    setRole('alumno')
+                    setError('')
+                  }}
                   className={[
                     'px-3 py-1.5 text-xs font-semibold rounded-full transition-colors',
                     role === 'alumno' ? 'bg-white text-gray-900' : 'hover:bg-white/20'
@@ -380,7 +528,10 @@ function AuthCard() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('docente')}
+                  onClick={() => {
+                    setRole('docente')
+                    setError('')
+                  }}
                   className={[
                     'px-3 py-1.5 text-xs font-semibold rounded-full transition-colors',
                     role === 'docente' ? 'bg-white text-gray-900' : 'hover:bg-white/20'
@@ -394,7 +545,7 @@ function AuthCard() {
             <div className="relative">
               {role === 'alumno' ? (
                 <div className="transition-all duration-300 ease-out">
-                  <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+                  <form className="space-y-3" onSubmit={handleRegistroAlumno}>
                     <input
                       aria-label="nombre"
                       type="text"
@@ -477,6 +628,8 @@ function AuthCard() {
                         className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
                         style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
                         required
+                        minLength={1}
+                        maxLength={1}
                       />
                     </div>
 
@@ -492,15 +645,75 @@ function AuthCard() {
 
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-400 hover:to-sky-400 active:scale-[0.99] transition-all"
+                      disabled={loading}
+                      className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-400 hover:to-sky-400 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Crear cuenta de alumno
+                      {loading ? 'Creando cuenta...' : 'Crear cuenta de alumno'}
                     </button>
                   </form>
                 </div>
               ) : (
-                <div className="transition-all duration-300 ease-out">
-                  <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+                <DocenteRegistroForm 
+                  nombreD={nombreD} 
+                  setNombreD={setNombreD}
+                  correoD={correoD}
+                  setCorreoD={setCorreoD}
+                  contrasenaD={contrasenaD}
+                  setContrasenaD={setContrasenaD}
+                  contrasenaD2={contrasenaD2}
+                  setContrasenaD2={setContrasenaD2}
+                  showD={showD}
+                  setShowD={setShowD}
+                  showD2={showD2}
+                  setShowD2={setShowD2}
+                  especialidad={especialidad}
+                  setEspecialidad={setEspecialidad}
+                  eye={eye}
+                  eyeOff={eyeOff}
+                  loading={loading}
+                  onSubmit={handleRegistroDocente}
+                />
+              )}
+            </div>
+          </div>
+        </AdaptiveSlider>
+      </div>
+    </div>
+  )
+}
+
+// Nuevo componente para el formulario de docente
+function DocenteRegistroForm({
+  nombreD, setNombreD, correoD, setCorreoD, contrasenaD, setContrasenaD,
+  contrasenaD2, setContrasenaD2, showD, setShowD, showD2, setShowD2,
+  especialidad, setEspecialidad, eye, eyeOff, loading, onSubmit
+}: any) {
+  const [gradoD, setGradoD] = useState('')
+  const [seccionD, setSeccionD] = useState('')
+  type Asignacion = { grado: string; seccion: string }
+  const [asignaciones, setAsignaciones] = useState<Asignacion[]>([])
+
+  const addAsignacion = () => {
+    const sec = seccionD.toUpperCase().slice(0, 1)
+    if (!gradoD || !sec) return
+    const exists = asignaciones.some((a) => a.grado === gradoD && a.seccion === sec)
+    if (exists) return
+    setAsignaciones((prev) => [...prev, { grado: gradoD, seccion: sec }])
+    setSeccionD('')
+  }
+
+  const removeAsignacion = (idx: number) => {
+    setAsignaciones((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    const gradosAsignados = asignaciones.map(a => `${a.grado}°${a.seccion}`)
+    onSubmit(e, gradosAsignados)
+  }
+
+  return (
+    <div className="transition-all duration-300 ease-out">
+      <form className="space-y-3" onSubmit={handleSubmit}>
                     <input
                       aria-label="nombre"
                       type="text"
@@ -534,7 +747,7 @@ function AuthCard() {
                           required
                           minLength={8}
                         />
-                        <button type="button" onClick={() => setShowD((s) => !s)}
+                        <button type="button" onClick={() => setShowD((s: boolean) => !s)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
                           {showD ? eyeOff : eye}
                         </button>
@@ -552,7 +765,7 @@ function AuthCard() {
                         required
                         minLength={8}
                       />
-                      <button type="button" onClick={() => setShowD2((s) => !s)}
+                      <button type="button" onClick={() => setShowD2((s: boolean) => !s)}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
                         {showD2 ? eyeOff : eye}
                       </button>
@@ -569,111 +782,83 @@ function AuthCard() {
                       required
                     />
 
-                    <DocenteAsignaciones />
+                    {/* Asignaciones de grados */}
+                    <div className="space-y-3">
+                      <span className="text-sm opacity-90">Grados y secciones asignados</span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <select
+                          aria-label="grado-docente"
+                          value={gradoD}
+                          onChange={(e) => setGradoD(e.target.value)}
+                          className="w-full rounded-xl border bg-white/10 px-4 py-3 text-white outline-none backdrop-blur focus:ring-2"
+                          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                        >
+                          <option value="" className="text-gray-900">Grado (1 a 6)</option>
+                          {gradosBase.map((g) => (
+                            <option key={g} value={g} className="text-gray-900">{g}</option>
+                          ))}
+                        </select>
+
+                        <input
+                          aria-label="seccion-docente"
+                          type="text"
+                          placeholder="Sección (ej: A)"
+                          value={seccionD}
+                          onChange={(e) => setSeccionD(e.target.value.toUpperCase().slice(0, 1))}
+                          className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
+                          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={addAsignacion}
+                          disabled={!gradoD || !seccionD}
+                          className={[
+                            'rounded-xl px-4 py-3 font-semibold transition-all',
+                            !gradoD || !seccionD
+                              ? 'bg-white/20 text-white/60 cursor-not-allowed'
+                              : 'bg-white text-gray-900 hover:bg-white/90'
+                          ].join(' ')}
+                        >
+                          Agregar
+                        </button>
+                      </div>
+
+                      <div className="rounded-xl border bg-white/10 p-3 backdrop-blur"
+                           style={{ borderColor: 'var(--panel-border)' }}>
+                        {asignaciones.length === 0 ? (
+                          <p className="text-sm opacity-80">Ninguno agregado aún.</p>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {asignaciones.map((a, idx) => (
+                              <div key={`${a.grado}-${a.seccion}-${idx}`} className="flex items-center justify-between rounded-lg px-3 py-2 bg-white/80 text-gray-900">
+                                <span className="text-sm font-medium">Grado {a.grado} - {a.seccion}</span>
+                                <button
+                                  type="button"
+                                  aria-label="remove"
+                                  onClick={() => removeAsignacion(idx)}
+                                  className="ml-2 h-5 w-5 rounded-full bg-gray-900/10 hover:bg-gray-900/20 flex items-center justify-center"
+                                  title="Quitar"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg hover:from-pink-400 hover:via-violet-400 hover:to-sky-400 active:scale-[0.99] transition-all"
+                      disabled={loading}
+                      className="w-full rounded-xl bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg hover:from-pink-400 hover:via-violet-400 hover:to-sky-400 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Crear cuenta de docente
+                      {loading ? 'Creando cuenta...' : 'Crear cuenta de docente'}
                     </button>
                   </form>
                 </div>
-              )}
-            </div>
-          </div>
-        </AdaptiveSlider>
-      </div>
-    </div>
-  )
-}
-
-function DocenteAsignaciones() {
-  const [gradoD, setGradoD] = useState('')
-  const [seccionD, setSeccionD] = useState('')
-  type Asignacion = { grado: string; seccion: string }
-  const [asignaciones, setAsignaciones] = useState<Asignacion[]>([])
-
-  const addAsignacion = () => {
-    const sec = seccionD.toUpperCase().slice(0, 1)
-    if (!gradoD || !sec) return
-    const exists = asignaciones.some((a) => a.grado === gradoD && a.seccion === sec)
-    if (exists) return
-    setAsignaciones((prev) => [...prev, { grado: gradoD, seccion: sec }])
-    setSeccionD('')
-  }
-
-  const removeAsignacion = (idx: number) => {
-    setAsignaciones((prev) => prev.filter((_, i) => i !== idx))
-  }
-
-  return (
-    <div className="space-y-3">
-      <span className="text-sm opacity-90">Grados y secciones asignados</span>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <select
-          aria-label="grado-docente"
-          value={gradoD}
-          onChange={(e) => setGradoD(e.target.value)}
-          className="w-full rounded-xl border bg-white/10 px-4 py-3 text-white outline-none backdrop-blur focus:ring-2"
-          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
-        >
-          <option value="" className="text-gray-900">Grado (1 a 6)</option>
-          {gradosBase.map((g) => (
-            <option key={g} value={g} className="text-gray-900">{g}</option>
-          ))}
-        </select>
-
-        <input
-          aria-label="seccion-docente"
-          type="text"
-          placeholder="Sección (ej: A)"
-          value={seccionD}
-          onChange={(e) => setSeccionD(e.target.value.toUpperCase().slice(0, 1))}
-          className="w-full rounded-xl border bg-white/10 px-5 py-3 text-white placeholder:text-white/70 outline-none backdrop-blur focus:ring-2"
-          style={{ borderColor: 'var(--panel-border)', ['--tw-ring-color' as any]: 'rgb(var(--ring))' }}
-        />
-
-        <button
-          type="button"
-          onClick={addAsignacion}
-          disabled={!gradoD || !seccionD}
-          className={[
-            'rounded-xl px-4 py-3 font-semibold transition-all',
-            !gradoD || !seccionD
-              ? 'bg-white/20 text-white/60 cursor-not-allowed'
-              : 'bg-white text-gray-900 hover:bg-white/90'
-          ].join(' ')}
-        >
-          Agregar
-        </button>
-      </div>
-
-      <div className="rounded-xl border bg-white/10 p-3 backdrop-blur"
-           style={{ borderColor: 'var(--panel-border)' }}>
-        {asignaciones.length === 0 ? (
-          <p className="text-sm opacity-80">Ninguno agregado aún.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {asignaciones.map((a, idx) => (
-              <div key={`${a.grado}-${a.seccion}-${idx}`} className="flex items-center justify-between rounded-lg px-3 py-2 bg-white/80 text-gray-900">
-                <span className="text-sm font-medium">Grado {a.grado} - {a.seccion}</span>
-                <button
-                  type="button"
-                  aria-label="remove"
-                  onClick={() => removeAsignacion(idx)}
-                  className="ml-2 h-5 w-5 rounded-full bg-gray-900/10 hover:bg-gray-900/20 flex items-center justify-center"
-                  title="Quitar"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
   )
 }
 

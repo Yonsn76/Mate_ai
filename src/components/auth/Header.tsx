@@ -1,4 +1,5 @@
 import type { NavKey, ThemeName } from '../../App'
+import { useAuth } from '../../contexts/AuthContext'
 
 type Props = {
   active: NavKey
@@ -8,6 +9,8 @@ type Props = {
 }
 
 export default function Header({ active, onChange, theme, setTheme }: Props) {
+  const { user, logout, isAuthenticated } = useAuth()
+  
   const navItems: { key: NavKey; label: string }[] = [
     { key: 'home', label: 'Home' },
     { key: 'services', label: 'Services' },
@@ -57,6 +60,23 @@ export default function Header({ active, onChange, theme, setTheme }: Props) {
               })}
             </ul>
           </nav>
+
+          {/* User info and logout button */}
+          {isAuthenticated && user && (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-full border backdrop-blur-md"
+                 style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--panel-border)' }}>
+              <div className="text-sm">
+                <div className="font-semibold text-white">{user.nombre}</div>
+                <div className="text-xs text-white/70 capitalize">{user.rol}</div>
+              </div>
+              <button
+                onClick={logout}
+                className="px-3 py-1.5 text-xs font-semibold rounded-full bg-red-500/20 text-red-200 hover:bg-red-500/30 transition-all"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          )}
 
           {/* Theme selector */}
           <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border px-1.5 sm:px-2 py-1 backdrop-blur-md"
